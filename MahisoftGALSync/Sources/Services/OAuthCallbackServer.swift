@@ -116,14 +116,14 @@ final class OAuthCallbackServer: @unchecked Sendable {
                     body = """
                     <html><body style="font-family:-apple-system,sans-serif;text-align:center;padding:60px;\
                     background:#1a1a1a;color:#fff"><h2>Authentication Failed</h2>\
-                    <p>Something went wrong. Please try again from Mahisoft GAL Sync.</p>\
+                    <p>Something went wrong. Please try again from the app.</p>\
                     <p style="color:#888;font-size:13px">You can close this tab.</p></body></html>
                     """
                 } else {
                     body = """
                     <html><body style="font-family:-apple-system,sans-serif;text-align:center;padding:60px;\
                     background:#1a1a1a;color:#fff"><h2>\u{2713} Signed in successfully</h2>\
-                    <p>You can close this tab and return to Mahisoft GAL Sync.</p></body></html>
+                    <p>You can close this tab and return to the app.</p></body></html>
                     """
                 }
 

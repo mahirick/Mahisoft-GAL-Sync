@@ -10,7 +10,7 @@ struct MenuBarView: View {
     var body: some View {
         Group {
             // App name header with version
-            Text("Mahisoft GAL Sync v\(appVersion)")
+            Text("\(Constants.appName) v\(appVersion)")
                 .font(.headline)
 
             Divider()
@@ -64,7 +64,7 @@ struct MenuBarView: View {
 
             Divider()
 
-            Button("Quit Mahisoft GAL Sync") {
+            Button("Quit \(Constants.appName)") {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut("q", modifiers: .command)

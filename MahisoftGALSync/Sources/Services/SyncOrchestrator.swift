@@ -137,7 +137,7 @@ final class SyncOrchestrator {
             accounts[i].lastSyncStatus = .inProgress
 
             let groupName = separateGroups
-                ? "\(account.domain.split(separator: ".").first?.capitalized ?? account.domain) Directory"
+                ? "\(account.domain.split(separator: ".").first?.capitalized ?? account.domain) GAL"
                 : baseGroupName
 
             do {

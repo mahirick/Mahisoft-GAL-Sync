@@ -7,7 +7,7 @@ struct HowItWorksTab: View {
 
                 // Header
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("How Mahisoft GAL Sync Works")
+                    Text("How \(Constants.appName) Works")
                         .font(.title2.bold())
                     Text("Keep your Apple Contacts in sync with your company's Google Workspace directory.")
                         .font(.callout)
@@ -18,7 +18,7 @@ struct HowItWorksTab: View {
 
                 // Purpose
                 sectionHeader("What It Does", icon: "arrow.triangle.2.circlepath.circle.fill")
-                Text("Mahisoft GAL Sync pulls your organization's people directory from Google Workspace and writes it into Apple Contacts. Every coworker — with their name, email, phone, title, and photo — stays up to date automatically.")
+                Text("GAL Sync pulls your organization's people directory from Google Workspace and writes it into Apple Contacts. Every coworker — with their name, email, phone, title, and photo — stays up to date automatically.")
                     .font(.callout)
 
                 // Steps
@@ -31,7 +31,7 @@ struct HowItWorksTab: View {
                      detail: "The app calls the Google People API (or Admin SDK for workspace admins) to download the company directory — names, emails, phones, titles, departments, and photos.")
 
                 step(number: 3, title: "Sync to Apple Contacts",
-                     detail: "Each person is matched by email. New people are added, changes are updated, and removed employees are cleaned up. All contacts go into a dedicated group (\"Mahisoft GAL\") so they never mix with your personal contacts.")
+                     detail: "Each person is matched by email. New people are added, changes are updated, and removed employees are cleaned up. All contacts go into a dedicated group (e.g. \"Acme GAL\") so they never mix with your personal contacts.")
 
                 step(number: 4, title: "Stay Current",
                      detail: "The app syncs on a schedule (default: every 4 hours). It detects changes so unchanged directories are skipped. You can also hit Sync Now anytime.")

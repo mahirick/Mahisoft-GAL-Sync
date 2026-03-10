@@ -44,7 +44,7 @@ struct SyncSettingsTab: View {
                     .textFieldStyle(.roundedBorder)
 
                 Toggle("Create separate group per domain", isOn: $separateGroupPerDomain)
-                    .help("When enabled, contacts from each domain get their own group (e.g. \"Mahisoft GAL\")")
+                    .help("When enabled, contacts from each domain get their own group (e.g. \"Acme GAL\", \"Corp GAL\")")
 
                 Toggle("Remove contacts deleted from directory", isOn: $removeDeletedContacts)
                     .help("When enabled, contacts removed from the Google directory are removed from the synced group (the contact itself is not deleted)")

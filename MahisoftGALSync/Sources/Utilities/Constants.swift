@@ -59,13 +59,13 @@ enum Constants {
 
     enum Defaults {
         static let syncIntervalHours = 4
-        static let contactGroupName = "Mahisoft GAL"
+        static let contactGroupName = "Company GAL"
         static let removeDeletedContacts = true
         static let syncOnLaunch = true
         static let includeSuspendedUsers = false
         static let includeProfilePhotos = true
         static let launchAtLogin = true
-        static let separateGroupPerDomain = false
+        static let separateGroupPerDomain = true
     }
 
     static let appSupportDirectory: URL = {
