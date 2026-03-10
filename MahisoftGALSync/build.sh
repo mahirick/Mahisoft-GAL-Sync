@@ -33,6 +33,14 @@ echo "→ Generating app icon..."
 swift Scripts/generate_icon.swift
 echo "  Icons generated"
 
+# Regenerate Xcode project so it picks up any structural changes
+echo "→ Regenerating Xcode project..."
+xcodegen generate --quiet
+echo "  Project regenerated"
+
+# Clear asset catalog cache so icons are always recompiled fresh
+DERIVED_DATA_PATH="$BUILD_DIR/DerivedData"
+
 # Step 1: Archive
 echo "→ Archiving..."
 xcodebuild archive \
@@ -41,6 +49,7 @@ xcodebuild archive \
     -configuration "$CONFIG" \
     -archivePath "$ARCHIVE_PATH" \
     -destination "generic/platform=macOS" \
+    -derivedDataPath "$DERIVED_DATA_PATH" \
     DEVELOPMENT_TEAM="$TEAM_ID" \
     CODE_SIGN_STYLE=Manual \
     CODE_SIGN_IDENTITY="Developer ID Application" \
@@ -120,35 +129,43 @@ hdiutil create -volname "$APP_NAME" \
     "$DMG_RW" > /dev/null
 
 # Mount it and style the window via AppleScript
-MOUNT_POINT=$(hdiutil attach "$DMG_RW" -readwrite -noverify -noautoopen | \
-    awk '/\/Volumes\//{print $NF}')
+# Use -mountpoint to get a predictable path (avoids " 2"/" 3" suffix conflicts)
+MOUNT_POINT="$BUILD_DIR/dmg_mount"
+mkdir -p "$MOUNT_POINT"
+hdiutil attach "$DMG_RW" -readwrite -noverify -noautoopen -mountpoint "$MOUNT_POINT" > /dev/null
 
 sleep 2  # give Finder time to register the volume
 
-osascript <<APPLESCRIPT
-tell application "Finder"
-    tell disk "$APP_NAME"
-        open
-        set current view of container window to icon view
-        set toolbar visible of container window to false
-        set statusbar visible of container window to false
-        set the bounds of container window to {200, 120, 760, 420}
-        set theViewOptions to the icon view options of container window
-        set arrangement of theViewOptions to not arranged
-        set icon size of theViewOptions to 128
-        -- Position app icon left, Applications arrow right
-        set position of item "MahisoftGALSync.app" of container window to {155, 145}
-        set position of item "Applications" of container window to {405, 145}
-        close
-        open
-        update without registering applications
-        delay 1
-        close
+# Get the actual volume name as Finder sees it
+VOLUME_NAME=$(basename "$MOUNT_POINT")
+osascript - "$MOUNT_POINT" <<'APPLESCRIPT'
+on run argv
+    set mountPath to item 1 of argv
+    tell application "Finder"
+        set theVolume to disk (POSIX file mountPath as alias)
+        tell theVolume
+            open
+            set current view of container window to icon view
+            set toolbar visible of container window to false
+            set statusbar visible of container window to false
+            set the bounds of container window to {200, 120, 760, 420}
+            set theViewOptions to the icon view options of container window
+            set arrangement of theViewOptions to not arranged
+            set icon size of theViewOptions to 128
+            set position of item "MahisoftGALSync.app" of container window to {155, 145}
+            set position of item "Applications" of container window to {405, 145}
+            close
+            open
+            update without registering applications
+            delay 1
+            close
+        end tell
     end tell
-end tell
+end run
 APPLESCRIPT
 
 hdiutil detach "$MOUNT_POINT" > /dev/null
+rmdir "$MOUNT_POINT" 2>/dev/null || true
 sleep 1
 
 # Convert to compressed read-only DMG
