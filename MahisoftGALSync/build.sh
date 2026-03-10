@@ -137,7 +137,7 @@ tell application "Finder"
         set arrangement of theViewOptions to not arranged
         set icon size of theViewOptions to 128
         -- Position app icon left, Applications arrow right
-        set position of item "Mahisoft GAL Sync.app" of container window to {155, 145}
+        set position of item "MahisoftGALSync.app" of container window to {155, 145}
         set position of item "Applications" of container window to {405, 145}
         close
         open
