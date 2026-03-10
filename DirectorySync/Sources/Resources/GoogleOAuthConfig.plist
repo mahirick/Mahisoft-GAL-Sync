@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CLIENT_ID</key>
+    <string>YOUR_CLIENT_ID.apps.googleusercontent.com</string>
+    <key>REDIRECT_URI</key>
+    <string>com.mahisoft.directorysync:/oauth/callback</string>
+    <key>AUTH_URI</key>
+    <string>https://accounts.google.com/o/oauth2/v2/auth</string>
+    <key>TOKEN_URI</key>
+    <string>https://oauth2.googleapis.com/token</string>
+</dict>
+</plist>

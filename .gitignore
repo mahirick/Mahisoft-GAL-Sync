@@ -1,0 +1,31 @@
+# Secrets
+DirectorySync/Sources/Resources/Secrets.plist
+
+# Xcode
+DirectorySync/DirectorySync.xcodeproj/
+DirectorySync/DirectorySync.xcworkspace/
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Build
+build/
+DerivedData/
+*.app
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# SPM
+.build/
+.swiftpm/
+DirectorySync/.build/
+DirectorySync/.swiftpm/
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Claude
+.claude/settings.local.json
