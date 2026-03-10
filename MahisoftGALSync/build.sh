@@ -122,6 +122,10 @@ mkdir -p "$DMG_TEMP"
 cp -R "$APP_PATH" "$DMG_TEMP/"
 ln -s /Applications "$DMG_TEMP/Applications"
 
+# Generate medium-grey background image for the DMG window
+mkdir -p "$DMG_TEMP/.background"
+swift Scripts/generate_dmg_bg.swift "$DMG_TEMP/.background/background.png"
+
 # Create a writable DMG first so we can style the Finder window
 hdiutil create -volname "$APP_NAME" \
     -srcfolder "$DMG_TEMP" \
@@ -136,8 +140,6 @@ hdiutil attach "$DMG_RW" -readwrite -noverify -noautoopen -mountpoint "$MOUNT_PO
 
 sleep 2  # give Finder time to register the volume
 
-# Get the actual volume name as Finder sees it
-VOLUME_NAME=$(basename "$MOUNT_POINT")
 osascript - "$MOUNT_POINT" <<'APPLESCRIPT'
 on run argv
     set mountPath to item 1 of argv
@@ -152,12 +154,14 @@ on run argv
             set theViewOptions to the icon view options of container window
             set arrangement of theViewOptions to not arranged
             set icon size of theViewOptions to 128
+            -- HFS-style path relative to the disk root (colon = path separator)
+            set background picture of theViewOptions to file ".background:background.png" of theVolume
             set position of item "MahisoftGALSync.app" of container window to {155, 145}
             set position of item "Applications" of container window to {405, 145}
             close
             open
             update without registering applications
-            delay 1
+            delay 2
             close
         end tell
     end tell
