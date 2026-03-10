@@ -42,7 +42,7 @@ targets:
         ARCHS: "$(ARCHS_STANDARD)"
         ONLY_ACTIVE_ARCH: false
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: "92KJ98262N"
+        DEVELOPMENT_TEAM: "38V22VWG47"
     dependencies:
       - package: KeychainAccess
 

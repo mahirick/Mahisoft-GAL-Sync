@@ -7,7 +7,7 @@ set -euo pipefail
 SCHEME="MahisoftGALSync"
 PROJECT="MahisoftGALSync.xcodeproj"
 CONFIG="Release"
-TEAM_ID="92KJ98262N"
+TEAM_ID="38V22VWG47"
 BUNDLE_ID="com.mahisoft.MahisoftGALSync"
 APP_NAME="MahisoftGALSync"
 
@@ -37,7 +37,8 @@ xcodebuild archive \
     -archivePath "$ARCHIVE_PATH" \
     -destination "generic/platform=macOS" \
     DEVELOPMENT_TEAM="$TEAM_ID" \
-    CODE_SIGN_STYLE=Automatic \
+    CODE_SIGN_STYLE=Manual \
+    CODE_SIGN_IDENTITY="Developer ID Application" \
     ONLY_ACTIVE_ARCH=NO \
     | tail -3
 
@@ -114,7 +115,7 @@ hdiutil create -volname "$APP_NAME" \
 rm -rf "$DMG_TEMP"
 
 # Codesign the DMG too
-codesign --sign "Developer ID Application: Rick Little ($TEAM_ID)" "$DMG_PATH" 2>/dev/null || true
+codesign --sign "Developer ID Application: Rick Little (38V22VWG47)" "$DMG_PATH" 2>/dev/null || true
 
 echo ""
 echo "=== Build Complete ==="
