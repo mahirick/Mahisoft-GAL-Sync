@@ -71,11 +71,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Shows a one-time alert explaining why macOS will prompt for Keychain access.
     /// macOS shows "MahisoftGALSync wants to use the Login Keychain" when tokens are
     /// first stored — clicking "Always Allow" prevents repeated prompts.
+    /// The explanation is shown once per build — each new build resets macOS Keychain
+    /// permissions (new code signature), so the user needs the reminder again.
     @MainActor
     private func showKeychainExplanationIfNeeded() {
-        let key = "hasShownKeychainExplanation"
-        guard !UserDefaults.standard.bool(forKey: key) else { return }
-        UserDefaults.standard.set(true, forKey: key)
+        let currentBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0"
+        let key = "keychainExplanationShownForBuild"
+        guard UserDefaults.standard.string(forKey: key) != currentBuild else { return }
+        UserDefaults.standard.set(currentBuild, forKey: key)
 
         let alert = NSAlert()
         alert.messageText = "Keychain Access"
