@@ -1,6 +1,7 @@
 import AppKit
 import Contacts
 import os
+import ServiceManagement
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -11,6 +12,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             let log = LogStore.shared
             log.info("Application launched", category: "app")
+
+            // On first launch: explain Keychain access before anything touches it
+            showKeychainExplanationIfNeeded()
+
+            // On first launch: register for launch at login (default ON per Constants)
+            registerLaunchAtLoginIfFirstRun()
 
             // Prompt for contacts access if not yet granted
             await Self.promptForContactsAccessIfNeeded()
@@ -50,15 +57,57 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         guard others.isEmpty else {
             Logger.app.warning("Another instance of MahisoftGALSync is already running — terminating this one.")
-            // Activate the existing instance so the user sees it
             others.first?.activate()
-            // Terminate after a brief delay so the app delegate can finish setup cleanly
             DispatchQueue.main.async {
                 NSApplication.shared.terminate(nil)
             }
             return false
         }
         return true
+    }
+
+    // MARK: - First Launch
+
+    /// Shows a one-time alert explaining why macOS will prompt for Keychain access.
+    /// macOS shows "MahisoftGALSync wants to use the Login Keychain" when tokens are
+    /// first stored — clicking "Always Allow" prevents repeated prompts.
+    @MainActor
+    private func showKeychainExplanationIfNeeded() {
+        let key = "hasShownKeychainExplanation"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        UserDefaults.standard.set(true, forKey: key)
+
+        let alert = NSAlert()
+        alert.messageText = "Keychain Access"
+        alert.informativeText = """
+            Mahisoft GAL Sync stores your Google sign-in credentials securely in the macOS Keychain.
+
+            When prompted by macOS, click "Always Allow" so you aren't asked again each time the app syncs.
+            """
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Got It")
+        alert.runModal()
+    }
+
+    /// Registers the app for launch at login on the very first run.
+    /// Respects the user's preference if they've already changed it.
+    @MainActor
+    private func registerLaunchAtLoginIfFirstRun() {
+        let key = "hasRegisteredLaunchAtLogin"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        UserDefaults.standard.set(true, forKey: key)
+
+        let shouldLaunch = UserDefaults.standard.object(forKey: "launchAtLogin") as? Bool
+            ?? Constants.Defaults.launchAtLogin
+
+        guard shouldLaunch else { return }
+
+        do {
+            try SMAppService.mainApp.register()
+            Logger.app.info("Registered for launch at login on first run")
+        } catch {
+            Logger.app.warning("Could not register for launch at login: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Contacts Permission

@@ -28,6 +28,11 @@ echo ""
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
+# Step 0: Regenerate app icon from SF Symbols
+echo "→ Generating app icon..."
+swift Scripts/generate_icon.swift
+echo "  Icons generated"
+
 # Step 1: Archive
 echo "→ Archiving..."
 xcodebuild archive \
@@ -99,22 +104,59 @@ else
     echo "→ Skipping notarization (--skip-notarize)"
 fi
 
-# Step 4: Create DMG
+# Step 4: Create DMG with a styled drag-to-Applications window
 echo "→ Creating DMG..."
 DMG_TEMP="$BUILD_DIR/dmg_staging"
+DMG_RW="$BUILD_DIR/${APP_NAME}_rw.dmg"   # writable intermediate
+
 mkdir -p "$DMG_TEMP"
 cp -R "$APP_PATH" "$DMG_TEMP/"
 ln -s /Applications "$DMG_TEMP/Applications"
 
+# Create a writable DMG first so we can style the Finder window
 hdiutil create -volname "$APP_NAME" \
     -srcfolder "$DMG_TEMP" \
-    -ov -format UDZO \
-    "$DMG_PATH" \
-    > /dev/null
+    -ov -format UDRW \
+    "$DMG_RW" > /dev/null
 
+# Mount it and style the window via AppleScript
+MOUNT_POINT=$(hdiutil attach "$DMG_RW" -readwrite -noverify -noautoopen | \
+    awk '/\/Volumes\//{print $NF}')
+
+sleep 2  # give Finder time to register the volume
+
+osascript <<APPLESCRIPT
+tell application "Finder"
+    tell disk "$APP_NAME"
+        open
+        set current view of container window to icon view
+        set toolbar visible of container window to false
+        set statusbar visible of container window to false
+        set the bounds of container window to {200, 120, 760, 420}
+        set theViewOptions to the icon view options of container window
+        set arrangement of theViewOptions to not arranged
+        set icon size of theViewOptions to 128
+        -- Position app icon left, Applications arrow right
+        set position of item "Mahisoft GAL Sync.app" of container window to {155, 145}
+        set position of item "Applications" of container window to {405, 145}
+        close
+        open
+        update without registering applications
+        delay 1
+        close
+    end tell
+end tell
+APPLESCRIPT
+
+hdiutil detach "$MOUNT_POINT" > /dev/null
+sleep 1
+
+# Convert to compressed read-only DMG
+hdiutil convert "$DMG_RW" -format UDZO -o "$DMG_PATH" > /dev/null
+rm -f "$DMG_RW"
 rm -rf "$DMG_TEMP"
 
-# Codesign the DMG too
+# Codesign the DMG
 codesign --sign "Developer ID Application: Rick Little (38V22VWG47)" "$DMG_PATH" 2>/dev/null || true
 
 echo ""
