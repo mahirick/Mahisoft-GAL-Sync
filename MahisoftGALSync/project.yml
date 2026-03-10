@@ -31,8 +31,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mahisoft.MahisoftGALSync
-        MARKETING_VERSION: "1.1.0"
-        CURRENT_PROJECT_VERSION: "3"
+        MARKETING_VERSION: "1.2.0"
+        CURRENT_PROJECT_VERSION: "4"
         INFOPLIST_FILE: Sources/Resources/Info.plist
         CODE_SIGN_ENTITLEMENTS: Sources/Resources/MahisoftGALSync.entitlements
         GENERATE_INFOPLIST_FILE: false

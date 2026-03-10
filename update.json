@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
-  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.1.0/MahisoftGALSync.dmg",
-  "releaseNotes": "App icon, launch at login, and improved first-run experience."
+  "version": "1.2.0",
+  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.2.0/MahisoftGALSync.dmg",
+  "releaseNotes": "Single keychain prompt on first launch instead of one per account."
 }
