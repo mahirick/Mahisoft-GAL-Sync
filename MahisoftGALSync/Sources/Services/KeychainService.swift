@@ -8,7 +8,11 @@ actor KeychainService {
     private let keychain: Keychain
 
     private init() {
-        self.keychain = Keychain(service: Constants.keychainService)
+        // Binding all items to the shared access group means macOS asks for
+        // permission once (the "Always Allow" dialog) and applies it to every
+        // item the app ever reads or writes — no per-item repeat prompts.
+        self.keychain = Keychain(service: Constants.keychainService,
+                                 accessGroup: Constants.keychainAccessGroup)
             .accessibility(.afterFirstUnlock)
     }
 
@@ -66,3 +70,4 @@ actor KeychainService {
         "oauth_tokens_\(email)"
     }
 }
+

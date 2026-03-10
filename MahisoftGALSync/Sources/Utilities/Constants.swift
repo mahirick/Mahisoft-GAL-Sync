@@ -5,6 +5,9 @@ enum Constants {
     static let bundleIdentifier = "com.mahisoft.MahisoftGALSync"
     static let appName = "Mahisoft GAL Sync"
     static let keychainService = "com.mahisoft.MahisoftGALSync.oauth"
+    /// Keychain access group — all items share this group so macOS asks for
+    /// permission once ("Always Allow") rather than once per item.
+    static let keychainAccessGroup = "38V22VWG47.com.mahisoft.MahisoftGALSync"
 
     enum OAuth {
         static let authURI = "https://accounts.google.com/o/oauth2/v2/auth"
