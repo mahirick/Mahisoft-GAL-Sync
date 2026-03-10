@@ -19,7 +19,7 @@ actor GoogleDirectoryService {
                     includeSuspended: includeSuspended
                 )
                 return (people, true)
-            } catch DirectorySyncError.apiError(let code, let message) where code == 403 {
+            } catch MahisoftGALSyncError.apiError(let code, let message) where code == 403 {
                 Logger.sync.info("Admin API returned 403 for \(account.email), falling back to People API. Response: \(message)")
             }
         }
@@ -71,7 +71,7 @@ actor GoogleDirectoryService {
 
         repeat {
             guard var components = URLComponents(string: Constants.GoogleAPI.adminDirectoryUsersURL) else {
-                throw DirectorySyncError.oauthFlowFailed("Invalid Admin Directory API URL")
+                throw MahisoftGALSyncError.oauthFlowFailed("Invalid Admin Directory API URL")
             }
 
             var queryItems: [URLQueryItem] = [
@@ -87,7 +87,7 @@ actor GoogleDirectoryService {
             components.queryItems = queryItems
 
             guard let url = components.url else {
-                throw DirectorySyncError.invalidResponse
+                throw MahisoftGALSyncError.invalidResponse
             }
 
             var request = URLRequest(url: url)
@@ -96,17 +96,17 @@ actor GoogleDirectoryService {
             let (data, response) = try await performRequest(request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw DirectorySyncError.invalidResponse
+                throw MahisoftGALSyncError.invalidResponse
             }
 
             guard httpResponse.statusCode == 200 else {
                 let body = String(data: data, encoding: .utf8) ?? "unknown"
-                throw DirectorySyncError.apiError(statusCode: httpResponse.statusCode, message: body)
+                throw MahisoftGALSyncError.apiError(statusCode: httpResponse.statusCode, message: body)
             }
 
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                 Logger.sync.error("Admin directory: failed to parse response JSON for page \(pageCount)")
-                throw DirectorySyncError.invalidResponse
+                throw MahisoftGALSyncError.invalidResponse
             }
 
             if let users = json["users"] as? [[String: Any]] {
@@ -137,7 +137,7 @@ actor GoogleDirectoryService {
 
         repeat {
             guard var components = URLComponents(string: Constants.GoogleAPI.peopleDirectoryURL) else {
-                throw DirectorySyncError.oauthFlowFailed("Invalid People API URL")
+                throw MahisoftGALSyncError.oauthFlowFailed("Invalid People API URL")
             }
 
             var queryItems: [URLQueryItem] = [
@@ -152,7 +152,7 @@ actor GoogleDirectoryService {
             components.queryItems = queryItems
 
             guard let url = components.url else {
-                throw DirectorySyncError.invalidResponse
+                throw MahisoftGALSyncError.invalidResponse
             }
 
             var request = URLRequest(url: url)
@@ -161,17 +161,17 @@ actor GoogleDirectoryService {
             let (data, response) = try await performRequest(request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw DirectorySyncError.invalidResponse
+                throw MahisoftGALSyncError.invalidResponse
             }
 
             guard httpResponse.statusCode == 200 else {
                 let body = String(data: data, encoding: .utf8) ?? "unknown"
-                throw DirectorySyncError.apiError(statusCode: httpResponse.statusCode, message: body)
+                throw MahisoftGALSyncError.apiError(statusCode: httpResponse.statusCode, message: body)
             }
 
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                 Logger.sync.error("People API: failed to parse response JSON for page \(pageCount)")
-                throw DirectorySyncError.invalidResponse
+                throw MahisoftGALSyncError.invalidResponse
             }
 
             if let people = json["people"] as? [[String: Any]] {
@@ -211,6 +211,6 @@ actor GoogleDirectoryService {
             }
         }
 
-        throw DirectorySyncError.networkError(lastError ?? URLError(.unknown))
+        throw MahisoftGALSyncError.networkError(lastError ?? URLError(.unknown))
     }
 }

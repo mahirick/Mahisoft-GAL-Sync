@@ -1,6 +1,6 @@
 # Mahisoft GAL Sync
 
-A native macOS menu bar app that syncs the Google Workspace Global Address List (GAL) for Mahisoft.com into a "Mahisoft Directory" group in Apple Contacts. Built with Swift/SwiftUI, targeting macOS 14+ (Sonoma).
+A native macOS menu bar app that syncs the Google Workspace Global Address List (GAL) for Mahisoft.com into a "Mahisoft GAL" group in Apple Contacts. Built with Swift/SwiftUI, targeting macOS 14+ (Sonoma).
 
 No Electron, no web views — just a lightweight menu bar agent that keeps your company directory up to date in Apple Contacts automatically.
 
@@ -15,7 +15,7 @@ No Electron, no web views — just a lightweight menu bar agent that keeps your 
 5. Sign in with your Google Workspace account in the browser
 6. Contacts sync automatically on a schedule (default: every 4 hours)
 
-Your coworkers will appear in Apple Contacts under a **"Mahisoft Directory"** group, with names, emails, phones, titles, and photos kept up to date.
+Your coworkers will appear in Apple Contacts under a **"Mahisoft GAL"** group, with names, emails, phones, titles, and photos kept up to date.
 
 ---
 
@@ -81,8 +81,8 @@ Navigate to **APIs & Services → Library** and enable:
 Copy the example secrets file and add your credentials:
 
 ```bash
-cp DirectorySync/Sources/Resources/Secrets.plist.example \
-   DirectorySync/Sources/Resources/Secrets.plist
+cp MahisoftGALSync/Sources/Resources/Secrets.plist.example \
+   MahisoftGALSync/Sources/Resources/Secrets.plist
 ```
 
 Edit `Secrets.plist` and fill in both values:
@@ -109,10 +109,10 @@ Edit `Secrets.plist` and fill in both values:
 ### Build from Command Line
 
 ```bash
-cd DirectorySync
+cd MahisoftGALSync
 xcodegen generate
-xcodebuild -project DirectorySync.xcodeproj \
-  -scheme DirectorySync \
+xcodebuild -project MahisoftGALSync.xcodeproj \
+  -scheme MahisoftGALSync \
   -configuration Debug \
   -destination 'platform=macOS' \
   build
@@ -121,9 +121,9 @@ xcodebuild -project DirectorySync.xcodeproj \
 ### Build in Xcode
 
 ```bash
-cd DirectorySync
+cd MahisoftGALSync
 xcodegen generate
-open DirectorySync.xcodeproj
+open MahisoftGALSync.xcodeproj
 ```
 
 Then press **Cmd+R** to build and run.
@@ -131,8 +131,8 @@ Then press **Cmd+R** to build and run.
 ### Run Tests
 
 ```bash
-xcodebuild -project DirectorySync.xcodeproj \
-  -scheme DirectorySyncTests \
+xcodebuild -project MahisoftGALSync.xcodeproj \
+  -scheme MahisoftGALSyncTests \
   -configuration Debug \
   -destination 'platform=macOS' \
   test
@@ -144,7 +144,7 @@ xcodebuild -project DirectorySync.xcodeproj \
 
 1. **Connect** — Sign in with your Google Workspace account. The app opens your browser for a secure Google sign-in and receives the callback on a local loopback server. It never sees your password.
 2. **Fetch** — The app calls the Google People API (or Admin SDK for workspace admins) to download the Mahisoft.com Global Address List — names, emails, phones, titles, departments, and photos.
-3. **Sync** — Each person is matched by email in Apple Contacts. New people are added, changes are updated, and removed employees are cleaned up. All contacts go into the **"Mahisoft Directory"** group.
+3. **Sync** — Each person is matched by email in Apple Contacts. New people are added, changes are updated, and removed employees are cleaned up. All contacts go into the **"Mahisoft GAL"** group.
 4. **Stay current** — The app syncs on a schedule (default: every 4 hours). It detects changes so unchanged directories are skipped. Hit **Sync Now** anytime from the menu bar.
 
 ### OAuth Flow (Loopback + PKCE)
@@ -192,7 +192,7 @@ xcodebuild -project DirectorySync.xcodeproj \
 | Sync interval | 4 hours | How often to sync (1h, 4h, 12h, 24h) |
 | Sync on launch | ON | Sync immediately when app starts |
 | Launch at login | ON | Start automatically on macOS login |
-| Contact group name | "Mahisoft Directory" | Name of the group in Apple Contacts |
+| Contact group name | "Mahisoft GAL" | Name of the group in Apple Contacts |
 | Separate group per domain | OFF | Create per-domain groups |
 | Remove deleted contacts | ON | Remove from group when removed from directory |
 | Include suspended users | OFF | Sync users with suspended Google accounts |
@@ -204,9 +204,9 @@ xcodebuild -project DirectorySync.xcodeproj \
 |------|----------|
 | OAuth tokens | macOS Keychain |
 | Preferences | `UserDefaults.standard` |
-| Account list | `~/Library/Application Support/com.mahisoft.DirectorySync/accounts.json` |
-| Sync state | `~/Library/Application Support/com.mahisoft.DirectorySync/sync_state.json` |
-| Activity log | `~/Library/Application Support/com.mahisoft.DirectorySync/activity_log.json` |
+| Account list | `~/Library/Application Support/com.mahisoft.MahisoftGALSync/accounts.json` |
+| Sync state | `~/Library/Application Support/com.mahisoft.MahisoftGALSync/sync_state.json` |
+| Activity log | `~/Library/Application Support/com.mahisoft.MahisoftGALSync/activity_log.json` |
 
 ---
 
@@ -236,19 +236,19 @@ When a newer version is detected, the menu bar shows an **"Update Available: v1.
 ### Build for Release
 
 ```bash
-cd DirectorySync
+cd MahisoftGALSync
 xcodegen generate
 
 # Archive
-xcodebuild -project DirectorySync.xcodeproj \
-  -scheme DirectorySync \
+xcodebuild -project MahisoftGALSync.xcodeproj \
+  -scheme MahisoftGALSync \
   -configuration Release \
-  -archivePath build/DirectorySync.xcarchive \
+  -archivePath build/MahisoftGALSync.xcarchive \
   archive
 
 # Export (requires Developer ID Application certificate)
 xcodebuild -exportArchive \
-  -archivePath build/DirectorySync.xcarchive \
+  -archivePath build/MahisoftGALSync.xcarchive \
   -exportPath build/ \
   -exportOptionsPlist ExportOptions.plist
 ```
@@ -258,7 +258,7 @@ xcodebuild -exportArchive \
 A convenience script is included:
 
 ```bash
-cd DirectorySync
+cd MahisoftGALSync
 ./build.sh                  # Full build → sign → notarize → DMG
 ./build.sh --skip-notarize  # Skip notarization (for testing)
 ```
@@ -302,12 +302,12 @@ cd DirectorySync
 ### Project Structure
 
 ```
-DirectorySync/
+MahisoftGALSync/
 ├── project.yml                          # XcodeGen project definition
 ├── build.sh                             # Build, sign, notarize, package
 ├── Sources/
 │   ├── App/
-│   │   ├── DirectorySyncApp.swift       # @main, MenuBarExtra, window scenes
+│   │   ├── MahisoftGALSyncApp.swift       # @main, MenuBarExtra, window scenes
 │   │   └── AppDelegate.swift            # App lifecycle, contacts prompt
 │   ├── Views/
 │   │   ├── MenuBarView.swift            # Menu bar dropdown
@@ -321,7 +321,7 @@ DirectorySync/
 │   │   ├── DirectoryPerson.swift        # Person model + Google API parsing
 │   │   ├── SyncAccount.swift            # Account model + persistence
 │   │   ├── SyncState.swift              # Sync timestamps + change hashes
-│   │   └── DirectorySyncError.swift     # Error types
+│   │   └── MahisoftGALSyncError.swift     # Error types
 │   ├── Services/
 │   │   ├── GoogleAuthService.swift      # OAuth flow + token refresh
 │   │   ├── OAuthCallbackServer.swift    # Loopback HTTP server (POSIX sockets)
@@ -340,9 +340,9 @@ DirectorySync/
 │       ├── Secrets.plist                # Client ID + Secret (gitignored)
 │       ├── Secrets.plist.example        # Template for collaborators
 │       ├── Info.plist                   # URL scheme, permissions
-│       └── DirectorySync.entitlements   # Sandbox, network, contacts, keychain
+│       └── MahisoftGALSync.entitlements   # Sandbox, network, contacts, keychain
 └── Tests/
-    └── DirectorySyncTests/
+    └── MahisoftGALSyncTests/
         ├── DirectoryPersonTests.swift   # Model parsing tests
         └── SyncAccountTests.swift       # Account model tests
 ```

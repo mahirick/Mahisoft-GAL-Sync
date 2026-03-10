@@ -62,7 +62,7 @@ actor GoogleAuthService {
 
         guard var components = URLComponents(string: Constants.OAuth.authURI) else {
             server.stop()
-            throw DirectorySyncError.oauthFlowFailed("Invalid authorization endpoint URL")
+            throw MahisoftGALSyncError.oauthFlowFailed("Invalid authorization endpoint URL")
         }
 
         components.queryItems = [
@@ -79,7 +79,7 @@ actor GoogleAuthService {
 
         guard let authURL = components.url else {
             server.stop()
-            throw DirectorySyncError.oauthFlowFailed("Failed to construct authorization URL")
+            throw MahisoftGALSyncError.oauthFlowFailed("Failed to construct authorization URL")
         }
 
         Logger.auth.info("Opening browser for OAuth (loopback on \(redirectURI))")
@@ -107,27 +107,27 @@ actor GoogleAuthService {
     private func handleCallback(url: URL, expectedRedirectURI: String) async throws -> (tokens: KeychainService.OAuthTokens, email: String) {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let queryItems = components.queryItems else {
-            throw DirectorySyncError.oauthFlowFailed("Invalid callback URL")
+            throw MahisoftGALSyncError.oauthFlowFailed("Invalid callback URL")
         }
 
         // Check for errors from Google
         if let error = queryItems.first(where: { $0.name == "error" })?.value {
             let description = queryItems.first(where: { $0.name == "error_description" })?.value ?? error
-            throw DirectorySyncError.oauthFlowFailed(description)
+            throw MahisoftGALSyncError.oauthFlowFailed(description)
         }
 
         // Validate state to prevent CSRF
         guard let returnedState = queryItems.first(where: { $0.name == "state" })?.value,
               returnedState == pendingState else {
-            throw DirectorySyncError.oauthFlowFailed("State mismatch — possible CSRF attack")
+            throw MahisoftGALSyncError.oauthFlowFailed("State mismatch — possible CSRF attack")
         }
 
         guard let code = queryItems.first(where: { $0.name == "code" })?.value else {
-            throw DirectorySyncError.oauthFlowFailed("No authorization code in callback")
+            throw MahisoftGALSyncError.oauthFlowFailed("No authorization code in callback")
         }
 
         guard let verifier = pendingPKCEVerifier else {
-            throw DirectorySyncError.pkceVerifierMissing
+            throw MahisoftGALSyncError.pkceVerifierMissing
         }
 
         // Exchange code for tokens using PKCE (no client_secret needed)
@@ -148,7 +148,7 @@ actor GoogleAuthService {
 
     private func exchangeCodeForTokens(code: String, codeVerifier: String, redirectURI: String) async throws -> KeychainService.OAuthTokens {
         guard let tokenURL = URL(string: Constants.OAuth.tokenURI) else {
-            throw DirectorySyncError.oauthFlowFailed("Invalid token endpoint URL")
+            throw MahisoftGALSyncError.oauthFlowFailed("Invalid token endpoint URL")
         }
 
         let clientID = try Constants.OAuth.resolveClientID()
@@ -181,35 +181,35 @@ actor GoogleAuthService {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
             Logger.auth.error("Token exchange network error: \(error.localizedDescription)")
-            throw DirectorySyncError.networkError(error)
+            throw MahisoftGALSyncError.networkError(error)
         }
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw DirectorySyncError.invalidResponse
+            throw MahisoftGALSyncError.invalidResponse
         }
 
         guard httpResponse.statusCode == 200 else {
             let body = String(data: data, encoding: .utf8) ?? "unknown"
             Logger.auth.error("Token exchange failed: HTTP \(httpResponse.statusCode) — \(body)")
-            throw DirectorySyncError.apiError(statusCode: httpResponse.statusCode, message: body)
+            throw MahisoftGALSyncError.apiError(statusCode: httpResponse.statusCode, message: body)
         }
 
         let json: [String: Any]
         do {
             guard let parsed = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw DirectorySyncError.invalidResponse
+                throw MahisoftGALSyncError.invalidResponse
             }
             json = parsed
         } catch {
             Logger.auth.error("Token exchange: failed to parse response JSON")
-            throw DirectorySyncError.invalidResponse
+            throw MahisoftGALSyncError.invalidResponse
         }
 
         guard let accessToken = json["access_token"] as? String,
               let refreshToken = json["refresh_token"] as? String,
               let expiresIn = json["expires_in"] as? Int else {
             Logger.auth.error("Token exchange: response missing required fields (access_token, refresh_token, expires_in)")
-            throw DirectorySyncError.invalidResponse
+            throw MahisoftGALSyncError.invalidResponse
         }
 
         let scope = json["scope"] as? String ?? ""
@@ -226,11 +226,11 @@ actor GoogleAuthService {
 
     func refreshAccessToken(for email: String) async throws -> String {
         guard let tokens = try await KeychainService.shared.loadTokens(for: email) else {
-            throw DirectorySyncError.tokenNotFound
+            throw MahisoftGALSyncError.tokenNotFound
         }
 
         guard let tokenURL = URL(string: Constants.OAuth.tokenURI) else {
-            throw DirectorySyncError.oauthFlowFailed("Invalid token endpoint URL")
+            throw MahisoftGALSyncError.oauthFlowFailed("Invalid token endpoint URL")
         }
 
         let clientID = try Constants.OAuth.resolveClientID()
@@ -261,20 +261,20 @@ actor GoogleAuthService {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
             Logger.auth.error("Token refresh network error for \(email): \(error.localizedDescription)")
-            throw DirectorySyncError.networkError(error)
+            throw MahisoftGALSyncError.networkError(error)
         }
 
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             let body = String(data: data, encoding: .utf8) ?? "unknown"
             Logger.auth.error("Token refresh failed for \(email): \(body)")
-            throw DirectorySyncError.tokenRefreshFailed
+            throw MahisoftGALSyncError.tokenRefreshFailed
         }
 
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let accessToken = json["access_token"] as? String,
               let expiresIn = json["expires_in"] as? Int else {
             Logger.auth.error("Token refresh: invalid response body for \(email)")
-            throw DirectorySyncError.tokenRefreshFailed
+            throw MahisoftGALSyncError.tokenRefreshFailed
         }
 
         var updatedTokens = tokens
@@ -289,7 +289,7 @@ actor GoogleAuthService {
     /// Returns a valid access token, refreshing automatically if expired or about to expire.
     func validAccessToken(for email: String) async throws -> String {
         guard let tokens = try await KeychainService.shared.loadTokens(for: email) else {
-            throw DirectorySyncError.tokenNotFound
+            throw MahisoftGALSyncError.tokenNotFound
         }
 
         // Refresh if token expires within 60 seconds
@@ -304,7 +304,7 @@ actor GoogleAuthService {
 
     private func fetchUserEmail(accessToken: String) async throws -> String {
         guard let url = URL(string: "https://www.googleapis.com/oauth2/v2/userinfo") else {
-            throw DirectorySyncError.oauthFlowFailed("Invalid userinfo endpoint URL")
+            throw MahisoftGALSyncError.oauthFlowFailed("Invalid userinfo endpoint URL")
         }
 
         var request = URLRequest(url: url)
@@ -315,13 +315,13 @@ actor GoogleAuthService {
             (data, _) = try await URLSession.shared.data(for: request)
         } catch {
             Logger.auth.error("Userinfo request failed: \(error.localizedDescription)")
-            throw DirectorySyncError.networkError(error)
+            throw MahisoftGALSyncError.networkError(error)
         }
 
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let email = json["email"] as? String else {
             Logger.auth.error("Userinfo response missing email field")
-            throw DirectorySyncError.invalidResponse
+            throw MahisoftGALSyncError.invalidResponse
         }
 
         return email

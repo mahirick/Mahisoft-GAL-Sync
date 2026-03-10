@@ -6,7 +6,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard ensureSingleInstance() else { return }
-        Logger.app.info("DirectorySync launched")
+        Logger.app.info("MahisoftGALSync launched")
 
         Task { @MainActor in
             let log = LogStore.shared
@@ -44,12 +44,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Returns `true` if this is the only running instance; terminates and returns `false` otherwise.
     private func ensureSingleInstance() -> Bool {
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.mahisoft.DirectorySync"
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.mahisoft.MahisoftGALSync"
         let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
         let others = running.filter { $0 != NSRunningApplication.current }
 
         guard others.isEmpty else {
-            Logger.app.warning("Another instance of DirectorySync is already running — terminating this one.")
+            Logger.app.warning("Another instance of MahisoftGALSync is already running — terminating this one.")
             // Activate the existing instance so the user sees it
             others.first?.activate()
             // Terminate after a brief delay so the app delegate can finish setup cleanly

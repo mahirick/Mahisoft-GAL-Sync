@@ -1,5 +1,5 @@
 import XCTest
-@testable import DirectorySync
+@testable import MahisoftGALSync
 
 final class DirectoryPersonTests: XCTestCase {
 

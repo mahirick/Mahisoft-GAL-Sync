@@ -2,14 +2,14 @@ import Foundation
 import os
 
 enum Constants {
-    static let bundleIdentifier = "com.mahisoft.DirectorySync"
+    static let bundleIdentifier = "com.mahisoft.MahisoftGALSync"
     static let appName = "Mahisoft GAL Sync"
-    static let keychainService = "com.mahisoft.DirectorySync.oauth"
+    static let keychainService = "com.mahisoft.MahisoftGALSync.oauth"
 
     enum OAuth {
         static let authURI = "https://accounts.google.com/o/oauth2/v2/auth"
         static let tokenURI = "https://oauth2.googleapis.com/token"
-        static let redirectURI = "com.mahisoft.directorysync:/oauth/callback"
+        static let redirectURI = "com.mahisoft.mahisoftgalsync:/oauth/callback"
         static let scopeDirectoryReadonly = "https://www.googleapis.com/auth/directory.readonly"
         static let scopeAdminDirectoryUserReadonly = "https://www.googleapis.com/auth/admin.directory.user.readonly"
 
@@ -34,7 +34,7 @@ enum Constants {
                 return clientID
             }
 
-            throw DirectorySyncError.oauthConfigMissing
+            throw MahisoftGALSyncError.oauthConfigMissing
         }
 
         /// Resolves the OAuth client secret from Secrets.plist.
@@ -48,7 +48,7 @@ enum Constants {
                 return secret
             }
 
-            throw DirectorySyncError.oauthConfigMissing
+            throw MahisoftGALSyncError.oauthConfigMissing
         }
     }
 
@@ -59,7 +59,7 @@ enum Constants {
 
     enum Defaults {
         static let syncIntervalHours = 4
-        static let contactGroupName = "Mahisoft Directory"
+        static let contactGroupName = "Mahisoft GAL"
         static let removeDeletedContacts = true
         static let syncOnLaunch = true
         static let includeSuspendedUsers = false

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Build a native macOS menu bar utility app called **Mahisoft GAL Sync** that syncs the Google Workspace Global Address List (GAL) for Mahisoft.com into a "Mahisoft Directory" group in Apple Contacts. The app targets macOS 14+ (Sonoma), is written entirely in Swift/SwiftUI, and is distributed as a signed/notarized .app bundle.
+Build a native macOS menu bar utility app called **Mahisoft GAL Sync** that syncs the Google Workspace Global Address List (GAL) for Mahisoft.com into a "Mahisoft GAL" group in Apple Contacts. The app targets macOS 14+ (Sonoma), is written entirely in Swift/SwiftUI, and is distributed as a signed/notarized .app bundle.
 
 The user is a senior developer acting as PO — they will not write code. You write all code, tests, configs, and scripts. You have full autonomy. Do not ask for approval on file creation, structure decisions, or implementation details. Just build it.
 
@@ -77,7 +77,7 @@ A proper SwiftUI settings window with tabs:
 - **Sync interval** picker: 1 hour, 4 hours, 12 hours, 24 hours (default: 4 hours)
 - **Contact group name** — text field, default: "Company Directory"
   - All synced contacts go into this group in Apple Contacts
-  - Separate group per domain (e.g., "Mahisoft Directory", "H3Y Directory") — toggle option
+  - Separate group per domain (e.g., "Mahisoft GAL", "H3Y Directory") — toggle option
 - **Remove contacts when deleted from directory** — checkbox, default: ON
 - **Sync on launch** — checkbox, default: ON
 - **Include suspended users** — checkbox, default: OFF
@@ -158,7 +158,7 @@ The app ships with a bundled OAuth client ID for a Google Cloud project. Users w
   - Last sync timestamp per account
   - Last known directory hash (to skip no-op syncs)
   - Per-contact last-modified tracking
-- **App Support directory:** `~/Library/Application Support/com.mahisoft.DirectorySync/`
+- **App Support directory:** `~/Library/Application Support/com.mahisoft.MahisoftGALSync/`
 
 ---
 
@@ -178,7 +178,7 @@ The app ships with a bundled OAuth client ID for a Google Cloud project. Users w
     <true/>
     <key>com.apple.security.keychain-access-groups</key>
     <array>
-        <string>$(AppIdentifierPrefix)com.mahisoft.DirectorySync</string>
+        <string>$(AppIdentifierPrefix)com.mahisoft.MahisoftGALSync</string>
     </array>
 </dict>
 </plist>
@@ -208,12 +208,12 @@ The app ships with a bundled OAuth client ID for a Google Cloud project. Users w
 ## Project Structure
 
 ```
-DirectorySync/
-├── Package.swift (or DirectorySync.xcodeproj)
+MahisoftGALSync/
+├── Package.swift (or MahisoftGALSync.xcodeproj)
 ├── Sources/
-│   └── DirectorySync/
+│   └── MahisoftGALSync/
 │       ├── App/
-│       │   ├── DirectorySyncApp.swift          # @main, MenuBarExtra
+│       │   ├── MahisoftGALSyncApp.swift          # @main, MenuBarExtra
 │       │   └── AppDelegate.swift               # URL scheme handling
 │       ├── Views/
 │       │   ├── MenuBarView.swift               # Dropdown menu content
@@ -237,9 +237,9 @@ DirectorySync/
 │       └── Resources/
 │           ├── Assets.xcassets                  # App icon, menu bar icon
 │           ├── GoogleOAuthConfig.plist          # Client ID, redirect URI
-│           └── DirectorySync.entitlements
+│           └── MahisoftGALSync.entitlements
 ├── Tests/
-│   └── DirectorySyncTests/
+│   └── MahisoftGALSyncTests/
 │       ├── GoogleDirectoryServiceTests.swift
 │       └── ContactsSyncServiceTests.swift
 └── README.md
@@ -272,10 +272,10 @@ Generate a README that includes:
 ### Building
 ```bash
 # Open in Xcode
-open DirectorySync.xcodeproj
+open MahisoftGALSync.xcodeproj
 
 # Or build from CLI
-xcodebuild -scheme DirectorySync -configuration Release
+xcodebuild -scheme MahisoftGALSync -configuration Release
 ```
 
 ---
@@ -283,10 +283,10 @@ xcodebuild -scheme DirectorySync -configuration Release
 ## Code Style & Conventions
 
 - Use Swift concurrency (`async/await`, `Task`, `@MainActor`) — no completion handlers
-- Use `os.Logger` for logging (subsystem: `com.mahisoft.DirectorySync`)
+- Use `os.Logger` for logging (subsystem: `com.mahisoft.MahisoftGALSync`)
 - Use `@Observable` (macOS 14+) for state management, not `ObservableObject`
 - Use `@AppStorage` for UserDefaults-backed preferences
-- Error types: create a `DirectorySyncError` enum conforming to `LocalizedError`
+- Error types: create a `MahisoftGALSyncError` enum conforming to `LocalizedError`
 - No force unwraps. No `try!`. Handle errors properly.
 - Use `actors` for thread-safe services where appropriate (e.g., `SyncOrchestrator`)
 

@@ -181,7 +181,7 @@ final class SyncOrchestrator {
                 accounts[i].lastSyncDate = Date()
                 accounts[i].lastSyncStatus = .success
 
-            } catch let error as DirectorySyncError {
+            } catch let error as MahisoftGALSyncError {
                 accounts[i].lastSyncStatus = .failed
                 hadErrors = true
 

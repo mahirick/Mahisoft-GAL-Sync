@@ -12,7 +12,7 @@
     <true/>
     <key>com.apple.security.keychain-access-groups</key>
     <array>
-        <string>$(AppIdentifierPrefix)com.mahisoft.DirectorySync</string>
+        <string>$(AppIdentifierPrefix)com.mahisoft.MahisoftGALSync</string>
     </array>
 </dict>
 </plist>

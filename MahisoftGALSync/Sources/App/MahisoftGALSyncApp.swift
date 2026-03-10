@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @main
-struct DirectorySyncApp: App {
+struct MahisoftGALSyncApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var orchestrator = SyncOrchestrator.shared
     @State private var logStore = LogStore.shared

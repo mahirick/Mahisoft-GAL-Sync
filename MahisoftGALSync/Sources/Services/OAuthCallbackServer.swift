@@ -13,7 +13,7 @@ final class OAuthCallbackServer: @unchecked Sendable {
     init() throws {
         let sock = Darwin.socket(AF_INET, SOCK_STREAM, 0)
         guard sock >= 0 else {
-            throw DirectorySyncError.oauthFlowFailed("Could not create socket: \(String(cString: strerror(errno)))")
+            throw MahisoftGALSyncError.oauthFlowFailed("Could not create socket: \(String(cString: strerror(errno)))")
         }
 
         // Allow port reuse
@@ -34,13 +34,13 @@ final class OAuthCallbackServer: @unchecked Sendable {
         }
         guard bindResult == 0 else {
             Darwin.close(sock)
-            throw DirectorySyncError.oauthFlowFailed("Could not bind socket: \(String(cString: strerror(errno)))")
+            throw MahisoftGALSyncError.oauthFlowFailed("Could not bind socket: \(String(cString: strerror(errno)))")
         }
 
         // Start listening
         guard Darwin.listen(sock, 1) == 0 else {
             Darwin.close(sock)
-            throw DirectorySyncError.oauthFlowFailed("Could not listen on socket: \(String(cString: strerror(errno)))")
+            throw MahisoftGALSyncError.oauthFlowFailed("Could not listen on socket: \(String(cString: strerror(errno)))")
         }
 
         // Get the assigned port
@@ -83,7 +83,7 @@ final class OAuthCallbackServer: @unchecked Sendable {
                 }
 
                 guard clientSock >= 0 else {
-                    continuation.resume(throwing: DirectorySyncError.oauthFlowFailed(
+                    continuation.resume(throwing: MahisoftGALSyncError.oauthFlowFailed(
                         "Timed out waiting for OAuth callback (or accept failed)"))
                     return
                 }
@@ -95,7 +95,7 @@ final class OAuthCallbackServer: @unchecked Sendable {
                 guard bytesRead > 0,
                       let request = String(bytes: buffer[..<bytesRead], encoding: .utf8) else {
                     Darwin.close(clientSock)
-                    continuation.resume(throwing: DirectorySyncError.oauthFlowFailed("Empty request from browser"))
+                    continuation.resume(throwing: MahisoftGALSyncError.oauthFlowFailed("Empty request from browser"))
                     return
                 }
 
@@ -103,7 +103,7 @@ final class OAuthCallbackServer: @unchecked Sendable {
                 guard let firstLine = request.components(separatedBy: "\r\n").first,
                       let pathPart = firstLine.split(separator: " ").dropFirst().first else {
                     Darwin.close(clientSock)
-                    continuation.resume(throwing: DirectorySyncError.oauthFlowFailed("Malformed HTTP request"))
+                    continuation.resume(throwing: MahisoftGALSyncError.oauthFlowFailed("Malformed HTTP request"))
                     return
                 }
 
@@ -136,7 +136,7 @@ final class OAuthCallbackServer: @unchecked Sendable {
                 if let url = URL(string: fullURLString) {
                     continuation.resume(returning: url)
                 } else {
-                    continuation.resume(throwing: DirectorySyncError.oauthFlowFailed("Could not parse callback URL"))
+                    continuation.resume(throwing: MahisoftGALSyncError.oauthFlowFailed("Could not parse callback URL"))
                 }
             }
         }

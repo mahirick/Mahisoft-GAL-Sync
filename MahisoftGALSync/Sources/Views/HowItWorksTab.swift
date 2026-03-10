@@ -31,7 +31,7 @@ struct HowItWorksTab: View {
                      detail: "The app calls the Google People API (or Admin SDK for workspace admins) to download the company directory — names, emails, phones, titles, departments, and photos.")
 
                 step(number: 3, title: "Sync to Apple Contacts",
-                     detail: "Each person is matched by email. New people are added, changes are updated, and removed employees are cleaned up. All contacts go into a dedicated group (\"Mahisoft Directory\") so they never mix with your personal contacts.")
+                     detail: "Each person is matched by email. New people are added, changes are updated, and removed employees are cleaned up. All contacts go into a dedicated group (\"Mahisoft GAL\") so they never mix with your personal contacts.")
 
                 step(number: 4, title: "Stay Current",
                      detail: "The app syncs on a schedule (default: every 4 hours). It detects changes so unchanged directories are skipped. You can also hit Sync Now anytime.")

@@ -1,6 +1,6 @@
 import Foundation
 
-enum DirectorySyncError: LocalizedError {
+enum MahisoftGALSyncError: LocalizedError {
     case oauthConfigMissing
     case oauthFlowFailed(String)
     case tokenRefreshFailed

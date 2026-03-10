@@ -23,7 +23,7 @@
             <string>Google OAuth Callback</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>com.mahisoft.directorysync</string>
+                <string>com.mahisoft.mahisoftgalsync</string>
             </array>
         </dict>
     </array>

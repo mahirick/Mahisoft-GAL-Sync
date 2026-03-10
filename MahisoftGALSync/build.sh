@@ -1,15 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
-# DirectorySync — Build, Sign, Notarize, Package
+# MahisoftGALSync — Build, Sign, Notarize, Package
 # Usage: ./build.sh [--skip-notarize]
 
-SCHEME="DirectorySync"
-PROJECT="DirectorySync.xcodeproj"
+SCHEME="MahisoftGALSync"
+PROJECT="MahisoftGALSync.xcodeproj"
 CONFIG="Release"
 TEAM_ID="92KJ98262N"
-BUNDLE_ID="com.mahisoft.DirectorySync"
-APP_NAME="DirectorySync"
+BUNDLE_ID="com.mahisoft.MahisoftGALSync"
+APP_NAME="MahisoftGALSync"
 
 BUILD_DIR="build"
 ARCHIVE_PATH="$BUILD_DIR/$APP_NAME.xcarchive"

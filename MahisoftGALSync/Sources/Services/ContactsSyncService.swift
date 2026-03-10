@@ -16,7 +16,7 @@ actor ContactsSyncService {
             return try await store.requestAccess(for: .contacts)
         } catch {
             Logger.contacts.error("Contacts access request failed: \(error.localizedDescription)")
-            throw DirectorySyncError.contactsAccessDenied
+            throw MahisoftGALSyncError.contactsAccessDenied
         }
     }
 
@@ -48,7 +48,7 @@ actor ContactsSyncService {
         let status = checkAccess()
         guard status == .authorized else {
             Logger.contacts.error("Contacts access not authorized (status: \(String(describing: status)))")
-            throw DirectorySyncError.contactsAccessDenied
+            throw MahisoftGALSyncError.contactsAccessDenied
         }
 
         let group: CNGroup
@@ -56,7 +56,7 @@ actor ContactsSyncService {
             group = try findOrCreateGroup(named: groupName)
         } catch {
             Logger.contacts.error("Failed to find/create group '\(groupName)': \(error.localizedDescription)")
-            throw DirectorySyncError.contactsWriteFailed(error)
+            throw MahisoftGALSyncError.contactsWriteFailed(error)
         }
 
         let existingContacts: [CNContact]
@@ -64,7 +64,7 @@ actor ContactsSyncService {
             existingContacts = try fetchContactsInGroup(group)
         } catch {
             Logger.contacts.error("Failed to fetch contacts in group '\(groupName)': \(error.localizedDescription)")
-            throw DirectorySyncError.contactsWriteFailed(error)
+            throw MahisoftGALSyncError.contactsWriteFailed(error)
         }
 
         var added = 0
@@ -140,7 +140,7 @@ actor ContactsSyncService {
         // Re-fetch to get the saved group with its identifier
         let updatedGroups = try store.groups(matching: nil)
         guard let created = updatedGroups.first(where: { $0.name == name }) else {
-            throw DirectorySyncError.contactsWriteFailed(
+            throw MahisoftGALSyncError.contactsWriteFailed(
                 NSError(domain: "ContactsSyncService", code: -1,
                         userInfo: [NSLocalizedDescriptionKey: "Group '\(name)' was created but could not be re-fetched"])
             )
@@ -282,7 +282,7 @@ actor ContactsSyncService {
         let (data, response) = try await URLSession.shared.data(from: url)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-            throw DirectorySyncError.apiError(statusCode: httpResponse.statusCode, message: "Photo download returned \(httpResponse.statusCode)")
+            throw MahisoftGALSyncError.apiError(statusCode: httpResponse.statusCode, message: "Photo download returned \(httpResponse.statusCode)")
         }
 
         return data
