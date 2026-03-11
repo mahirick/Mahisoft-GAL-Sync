@@ -119,6 +119,10 @@ struct MenuBarView: View {
             }
         }
 
+        Button("Show GAL in Contacts") {
+            NSWorkspace.shared.open(URL(string: "addressbook://")!)
+        }
+
         if let lastSync = orchestrator.lastSyncDate {
             Text("Last synced: \(lastSync.formatted(.relative(presentation: .named)))")
                 .foregroundStyle(.secondary)

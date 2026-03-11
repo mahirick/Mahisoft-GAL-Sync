@@ -72,12 +72,26 @@ actor ContactsSyncService {
         var removed = 0
         var photoErrors = 0
 
-        // Build lookup by email
+        // Build lookup by email, removing any duplicates already in the group
         var contactsByEmail: [String: CNContact] = [:]
+        var duplicatesToRemove: [CNContact] = []
+
         for contact in existingContacts {
             for email in contact.emailAddresses {
                 let addr = (email.value as String).lowercased()
-                contactsByEmail[addr] = contact
+                if let existing = contactsByEmail[addr] {
+                    duplicatesToRemove.append(existing)
+                    contactsByEmail[addr] = contact
+                } else {
+                    contactsByEmail[addr] = contact
+                }
+            }
+        }
+
+        if !duplicatesToRemove.isEmpty {
+            Logger.contacts.warning("Removing \(duplicatesToRemove.count) duplicate contact(s) from group '\(groupName)'")
+            for dup in duplicatesToRemove {
+                try? removeContactFromGroup(dup, group: group)
             }
         }
 

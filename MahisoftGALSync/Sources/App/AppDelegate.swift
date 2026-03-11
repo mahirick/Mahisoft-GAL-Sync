@@ -16,6 +16,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // On first launch: explain Keychain access before anything touches it
             showKeychainExplanationIfNeeded()
 
+            // On first launch: ask user to name their contact group
+            promptForGroupNameIfNeeded()
+
             // On first launch: register for launch at login (default ON per Constants)
             registerLaunchAtLoginIfFirstRun()
 
@@ -90,6 +93,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Got It")
         alert.runModal()
+    }
+
+    /// Asks the user to name their contact group on the very first launch.
+    /// Only shown once — skipped on all subsequent launches.
+    @MainActor
+    private func promptForGroupNameIfNeeded() {
+        guard UserDefaults.standard.object(forKey: "contactGroupName") == nil else { return }
+
+        let alert = NSAlert()
+        alert.messageText = "Name Your Contact Group"
+        alert.informativeText = "What would you like to call the group in Apple Contacts where your company directory will be synced?"
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Save")
+
+        let input = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 24))
+        input.stringValue = Constants.Defaults.contactGroupName
+        input.placeholderString = Constants.Defaults.contactGroupName
+        input.bezelStyle = .roundedBezel
+        alert.accessoryView = input
+
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
+
+        let name = input.stringValue.trimmingCharacters(in: .whitespaces)
+        UserDefaults.standard.set(name.isEmpty ? Constants.Defaults.contactGroupName : name, forKey: "contactGroupName")
+        Logger.app.info("Contact group name set to: \(name)")
     }
 
     /// Registers the app for launch at login on the very first run.
