@@ -143,20 +143,8 @@ struct AccountRow: View {
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(account.email)
-                        .fontWeight(.medium)
-
-                    if account.isAdmin {
-                        Text("Admin")
-                            .font(.caption2.weight(.medium))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(.blue.opacity(0.12))
-                            .foregroundStyle(.blue)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                    }
-                }
+                Text(account.email)
+                    .fontWeight(.medium)
 
                 HStack(spacing: 8) {
                     Text(account.domain)

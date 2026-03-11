@@ -42,7 +42,7 @@ actor GoogleAuthService {
 
     /// Performs the full OAuth flow: starts a loopback server, opens the browser,
     /// waits for the callback, exchanges the code for tokens, and returns the result.
-    func performOAuthFlow(useAdminScope: Bool = false) async throws -> (tokens: KeychainService.OAuthTokens, email: String) {
+    func performOAuthFlow() async throws -> (tokens: KeychainService.OAuthTokens, email: String) {
         let clientID = try Constants.OAuth.resolveClientID()
         let verifier = generateCodeVerifier()
         let challenge = generateCodeChallenge(from: verifier)
@@ -56,9 +56,7 @@ actor GoogleAuthService {
         self.callbackServer = server
         let redirectURI = server.redirectURI
 
-        let scope = useAdminScope
-            ? Constants.OAuth.scopeAdminDirectoryUserReadonly
-            : Constants.OAuth.scopeDirectoryReadonly
+        let scope = Constants.OAuth.scopeDirectoryReadonly
 
         guard var components = URLComponents(string: Constants.OAuth.authURI) else {
             server.stop()

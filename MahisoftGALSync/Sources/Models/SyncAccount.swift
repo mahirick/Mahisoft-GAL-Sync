@@ -4,7 +4,6 @@ struct SyncAccount: Identifiable, Codable, Equatable {
     let id: UUID
     var email: String
     var domain: String
-    var isAdmin: Bool
     var lastSyncDate: Date?
     var lastSyncStatus: SyncStatus
     var needsReauth: Bool
@@ -20,7 +19,6 @@ struct SyncAccount: Identifiable, Codable, Equatable {
         self.id = UUID()
         self.email = email
         self.domain = email.components(separatedBy: "@").last ?? ""
-        self.isAdmin = false
         self.lastSyncDate = nil
         self.lastSyncStatus = .never
         self.needsReauth = false

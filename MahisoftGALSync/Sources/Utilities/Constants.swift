@@ -14,7 +14,6 @@ enum Constants {
         static let tokenURI = "https://oauth2.googleapis.com/token"
         static let redirectURI = "com.mahisoft.mahisoftgalsync:/oauth/callback"
         static let scopeDirectoryReadonly = "https://www.googleapis.com/auth/directory.readonly"
-        static let scopeAdminDirectoryUserReadonly = "https://www.googleapis.com/auth/admin.directory.user.readonly"
 
         /// Resolves the OAuth client ID from Secrets.plist (gitignored).
         /// Falls back to GoogleOAuthConfig.plist for backwards compatibility.
@@ -56,7 +55,6 @@ enum Constants {
     }
 
     enum GoogleAPI {
-        static let adminDirectoryUsersURL = "https://admin.googleapis.com/admin/directory/v1/users"
         static let peopleDirectoryURL = "https://people.googleapis.com/v1/people:listDirectoryPeople"
     }
 
@@ -65,7 +63,6 @@ enum Constants {
         static let contactGroupName = "Company GAL"
         static let removeDeletedContacts = true
         static let syncOnLaunch = true
-        static let includeSuspendedUsers = false
         static let includeProfilePhotos = true
         static let launchAtLogin = true
         static let separateGroupPerDomain = true

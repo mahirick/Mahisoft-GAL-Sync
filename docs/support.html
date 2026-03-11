@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support — GAL Sync</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">GAL Sync</a>
+  <div class="nav-links">
+    <a href="index.html#features">Features</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="support.html">Support</a>
+    <a href="https://github.com/mahirick/Mahisoft-GAL-Sync/releases/latest">Download</a>
+  </div>
+</nav>
+
+<div class="prose">
+  <h1>Support</h1>
+  <p class="subtitle">Need help? We're here.</p>
+
+  <h2>Report a bug or request a feature</h2>
+  <p>The best way to get help is to <a href="https://github.com/mahirick/Mahisoft-GAL-Sync/issues">open an issue on GitHub</a>. Include your macOS version and a description of what happened.</p>
+
+  <h2>Email support</h2>
+  <p>You can also reach us at <a href="mailto:support@mahisoft.com">support@mahisoft.com</a>.</p>
+
+  <h2>Common questions</h2>
+
+  <h2>Why does the app ask for Keychain access?</h2>
+  <p>GAL Sync stores your Google OAuth tokens in the macOS Keychain — the same secure storage used by Safari and other apps for passwords. This keeps your credentials safe and off disk. Click <strong>Always Allow</strong> so the app can access the token without prompting every time.</p>
+
+  <h2>My contacts aren't syncing. What should I check?</h2>
+  <ul>
+    <li>Open <strong>System Settings → Privacy &amp; Security → Contacts</strong> and make sure GAL Sync has access.</li>
+    <li>Check that your Google account is listed in <strong>Preferences → Accounts</strong> and doesn't show a re-auth warning.</li>
+    <li>Click <strong>Sync Now</strong> from the menu bar icon to trigger an immediate sync.</li>
+  </ul>
+
+  <h2>I see "Re-auth needed" on my account.</h2>
+  <p>Your Google OAuth token has expired and couldn't be refreshed automatically. Remove the account from Preferences → Accounts and add it again to re-authorize.</p>
+
+  <h2>Can I sync multiple Google Workspace accounts?</h2>
+  <p>Yes. Click <strong>Add Account</strong> in Preferences → Accounts for each account. Each domain gets its own contact group.</p>
+
+  <h2>How do I uninstall?</h2>
+  <ol>
+    <li>Quit GAL Sync from the menu bar (click icon → Quit).</li>
+    <li>Delete <strong>Mahisoft GAL Sync.app</strong> from your Applications folder.</li>
+    <li>Optionally remove app data: <code>~/Library/Application Support/com.mahisoft.MahisoftGALSync/</code></li>
+    <li>Optionally remove preferences: <code>defaults delete com.mahisoft.MahisoftGALSync</code></li>
+  </ol>
+</div>
+
+<footer>
+  <span>© 2025 Mahisoft.</span>
+  <div style="display:flex;gap:20px;">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="support.html">Support</a>
+    <a href="https://github.com/mahirick/Mahisoft-GAL-Sync">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -42,17 +42,6 @@ final class SyncOrchestrator {
             return
         }
 
-        // Check admin access
-        do {
-            account.isAdmin = try await GoogleDirectoryService.shared.checkAdminAccess(
-                for: email, domain: account.domain
-            )
-            log.info("\(email) admin access: \(account.isAdmin)", category: "auth")
-        } catch {
-            log.log(error, context: "Checking admin access for \(email)", category: "auth")
-            // Non-fatal — default to non-admin
-        }
-
         accounts.append(account)
         saveAccounts()
     }
@@ -114,7 +103,6 @@ final class SyncOrchestrator {
         isSyncing = true
         syncError = nil
 
-        let includeSuspended = UserDefaults.standard.bool(forKey: "includeSuspendedUsers")
         let includePhotos = UserDefaults.standard.object(forKey: "includeProfilePhotos") as? Bool ?? Constants.Defaults.includeProfilePhotos
         let removeDeleted = UserDefaults.standard.object(forKey: "removeDeletedContacts") as? Bool ?? Constants.Defaults.removeDeletedContacts
         let separateGroups = UserDefaults.standard.bool(forKey: "separateGroupPerDomain")
@@ -141,14 +129,7 @@ final class SyncOrchestrator {
                 : baseGroupName
 
             do {
-                let (people, isAdmin) = try await GoogleDirectoryService.shared.fetchDirectory(
-                    for: account,
-                    includeSuspended: includeSuspended
-                )
-
-                if accounts[i].isAdmin != isAdmin {
-                    accounts[i].isAdmin = isAdmin
-                }
+                let people = try await GoogleDirectoryService.shared.fetchDirectory(for: account)
 
                 log.info("Fetched \(people.count) people for \(account.email)", category: "sync")
 

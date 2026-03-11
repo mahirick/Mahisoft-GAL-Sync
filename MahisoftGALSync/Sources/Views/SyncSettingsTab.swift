@@ -8,7 +8,6 @@ struct SyncSettingsTab: View {
     @AppStorage("separateGroupPerDomain") private var separateGroupPerDomain = Constants.Defaults.separateGroupPerDomain
     @AppStorage("removeDeletedContacts") private var removeDeletedContacts = Constants.Defaults.removeDeletedContacts
     @AppStorage("syncOnLaunch") private var syncOnLaunch = Constants.Defaults.syncOnLaunch
-    @AppStorage("includeSuspendedUsers") private var includeSuspendedUsers = Constants.Defaults.includeSuspendedUsers
     @AppStorage("includeProfilePhotos") private var includeProfilePhotos = Constants.Defaults.includeProfilePhotos
     @AppStorage("launchAtLogin") private var launchAtLogin = Constants.Defaults.launchAtLogin
 
@@ -53,9 +52,6 @@ struct SyncSettingsTab: View {
             }
 
             Section {
-                Toggle("Include suspended users", isOn: $includeSuspendedUsers)
-                    .help("Sync users whose accounts are suspended in Google Workspace")
-
                 Toggle("Include profile photos", isOn: $includeProfilePhotos)
                     .help("Download and set Google profile photos on contacts")
             } header: {

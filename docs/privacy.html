@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — GAL Sync</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">GAL Sync</a>
+  <div class="nav-links">
+    <a href="index.html#features">Features</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="support.html">Support</a>
+    <a href="https://github.com/mahirick/Mahisoft-GAL-Sync/releases/latest">Download</a>
+  </div>
+</nav>
+
+<div class="prose">
+  <h1>Privacy Policy</h1>
+  <p class="subtitle">Last updated: March 2025</p>
+
+  <h2>Overview</h2>
+  <p>GAL Sync is a macOS application that syncs your Google Workspace directory to Apple Contacts. This policy explains what data is accessed, how it is used, and how it is stored.</p>
+
+  <h2>Data We Access</h2>
+  <p>GAL Sync requests the <code>https://www.googleapis.com/auth/directory.readonly</code> Google OAuth scope. This grants read-only access to your Google Workspace directory, which includes:</p>
+  <ul>
+    <li>Names and email addresses of people in your organization's directory</li>
+    <li>Phone numbers (work)</li>
+    <li>Job titles and departments</li>
+    <li>Profile photos</li>
+    <li>Organization name</li>
+  </ul>
+  <p>This is the same information visible to any member of your Google Workspace organization in the directory.</p>
+
+  <h2>How Data Is Used</h2>
+  <p>Directory data is used solely to create and update contact records in a dedicated group in your Apple Contacts app. No data is transmitted to any server, third party, or cloud service operated by Mahisoft or anyone else.</p>
+
+  <h2>Where Data Is Stored</h2>
+  <ul>
+    <li><strong>OAuth tokens</strong> — stored exclusively in the macOS Keychain on your device. Never written to disk in plain text, never uploaded anywhere.</li>
+    <li><strong>Contact data</strong> — written to your local Apple Contacts database via the macOS Contacts framework. This is on your device.</li>
+    <li><strong>Preferences</strong> — stored in macOS UserDefaults (local to your Mac).</li>
+    <li><strong>Sync metadata</strong> — stored in <code>~/Library/Application Support/com.mahisoft.MahisoftGALSync/</code> on your local Mac.</li>
+  </ul>
+
+  <h2>Data Sharing</h2>
+  <p>GAL Sync does not share, sell, or transmit any data to any third party. All processing happens locally on your Mac.</p>
+
+  <h2>Google API Services</h2>
+  <p>GAL Sync's use of Google API Services is limited to reading your organization's directory. We do not use data obtained through Google APIs to develop, improve, or train generalized AI or ML models. Our use complies with the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+  <h2>Revoking Access</h2>
+  <p>You can remove your Google account from GAL Sync at any time via the app's Preferences → Accounts tab. This deletes the stored OAuth tokens from your Keychain. You can also revoke access from your <a href="https://myaccount.google.com/permissions">Google Account permissions page</a>.</p>
+
+  <h2>Children's Privacy</h2>
+  <p>GAL Sync is intended for use by employees of Google Workspace organizations. It is not directed at children under 13.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>If this policy changes materially, we will update the date above and post the revised policy at this URL.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy? Email <a href="mailto:support@mahisoft.com">support@mahisoft.com</a>.</p>
+</div>
+
+<footer>
+  <span>© 2025 Mahisoft.</span>
+  <div style="display:flex;gap:20px;">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="support.html">Support</a>
+    <a href="https://github.com/mahirick/Mahisoft-GAL-Sync">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
