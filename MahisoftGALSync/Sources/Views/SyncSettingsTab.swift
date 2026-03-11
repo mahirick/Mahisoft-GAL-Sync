@@ -14,6 +14,8 @@ struct SyncSettingsTab: View {
     @Environment(SyncOrchestrator.self) private var orchestrator
     @Environment(LogStore.self) private var logStore
 
+    @State private var showingResetConfirmation = false
+
     var body: some View {
         Form {
             Section {
@@ -47,6 +49,19 @@ struct SyncSettingsTab: View {
 
                 Toggle("Remove contacts deleted from directory", isOn: $removeDeletedContacts)
                     .help("When enabled, contacts removed from the Google directory are removed from the synced group (the contact itself is not deleted)")
+
+                Button("Reset & Resync...", role: .destructive) {
+                    showingResetConfirmation = true
+                }
+                .help("Delete the synced contact group and re-download all contacts from your Google directory")
+                .alert("Reset & Resync?", isPresented: $showingResetConfirmation) {
+                    Button("Reset & Resync", role: .destructive) {
+                        Task { await orchestrator.resetAndResync() }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("This will delete your synced contact group and re-download everyone from your Google directory.\n\nYour contact records will not be deleted — they'll just be removed from the group, then re-added during the sync.\n\nUse this to fix duplicates or after changing the group name.")
+                }
             } header: {
                 Text("Contacts")
             }

@@ -38,8 +38,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 await SyncOrchestrator.shared.syncAllAccounts()
             }
 
-            // Check for updates
-            await UpdateChecker.shared.checkIfNeeded()
+            // Check for updates on every launch
+            await UpdateChecker.shared.check()
         }
     }
 

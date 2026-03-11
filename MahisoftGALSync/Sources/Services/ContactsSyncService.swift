@@ -59,49 +59,30 @@ actor ContactsSyncService {
             throw MahisoftGALSyncError.contactsWriteFailed(error)
         }
 
-        let existingContacts: [CNContact]
-        do {
-            existingContacts = try fetchContactsInGroup(group)
-        } catch {
-            Logger.contacts.error("Failed to fetch contacts in group '\(groupName)': \(error.localizedDescription)")
-            throw MahisoftGALSyncError.contactsWriteFailed(error)
+        // Fetch group members for removal tracking only.
+        // Note: predicateForContactsInGroup is unreliable with iCloud containers and may
+        // return empty results. We do NOT use this for the create-vs-update decision.
+        let groupContacts = (try? fetchContactsInGroup(group)) ?? []
+        var groupEmailToContact: [String: CNContact] = [:]
+        for contact in groupContacts {
+            for email in contact.emailAddresses {
+                groupEmailToContact[(email.value as String).lowercased()] = contact
+            }
         }
+
+        let directoryEmails = Set(people.map { $0.primaryEmail.lowercased() })
 
         var added = 0
         var updated = 0
         var removed = 0
         var photoErrors = 0
 
-        // Build lookup by email, removing any duplicates already in the group
-        var contactsByEmail: [String: CNContact] = [:]
-        var duplicatesToRemove: [CNContact] = []
-
-        for contact in existingContacts {
-            for email in contact.emailAddresses {
-                let addr = (email.value as String).lowercased()
-                if let existing = contactsByEmail[addr] {
-                    duplicatesToRemove.append(existing)
-                    contactsByEmail[addr] = contact
-                } else {
-                    contactsByEmail[addr] = contact
-                }
-            }
-        }
-
-        if !duplicatesToRemove.isEmpty {
-            Logger.contacts.warning("Removing \(duplicatesToRemove.count) duplicate contact(s) from group '\(groupName)'")
-            for dup in duplicatesToRemove {
-                try? removeContactFromGroup(dup, group: group)
-            }
-        }
-
-        let directoryEmails = Set(people.map { $0.primaryEmail.lowercased() })
-
-        // Add or update each person
+        // Add or update each person using a reliable store-wide email search.
+        // This prevents duplicates when the group predicate returns stale/empty results.
         for person in people {
             let key = person.primaryEmail.lowercased()
 
-            if let existing = contactsByEmail[key] {
+            if let existing = try findContactByEmail(key) {
                 do {
                     if try updateContact(existing, from: person, includePhotos: includePhotos) {
                         updated += 1
@@ -109,7 +90,10 @@ actor ContactsSyncService {
                 } catch {
                     Logger.contacts.error("Failed to update contact \(person.primaryEmail): \(error.localizedDescription)")
                 }
-                contactsByEmail.removeValue(forKey: key)
+                // Ensure contact is in the group (handles post-reset re-add)
+                if groupEmailToContact[key] == nil {
+                    try? addContactToGroup(existing, group: group)
+                }
             } else {
                 do {
                     try await createContact(from: person, in: group, includePhotos: includePhotos, photoErrors: &photoErrors)
@@ -120,9 +104,9 @@ actor ContactsSyncService {
             }
         }
 
-        // Remove contacts no longer in directory
+        // Remove group members no longer in the directory
         if removeDeleted {
-            for (email, contact) in contactsByEmail where !directoryEmails.contains(email) {
+            for (email, contact) in groupEmailToContact where !directoryEmails.contains(email) {
                 do {
                     try removeContactFromGroup(contact, group: group)
                     removed += 1
@@ -135,6 +119,31 @@ actor ContactsSyncService {
         let result = SyncResult(added: added, updated: updated, removed: removed, photoErrors: photoErrors, total: people.count)
         Logger.contacts.info("Sync complete for group '\(groupName)': \(result.summary)")
         return result
+    }
+
+    /// Searches the entire contact store by email — reliable across all containers
+    /// (iCloud, On My Mac, Exchange, etc.), unlike predicateForContactsInGroup.
+    private func findContactByEmail(_ email: String) throws -> CNContact? {
+        let predicate = CNContact.predicateForContacts(matchingEmailAddress: email)
+        let keysToFetch: [CNKeyDescriptor] = [
+            CNContactGivenNameKey as CNKeyDescriptor,
+            CNContactFamilyNameKey as CNKeyDescriptor,
+            CNContactEmailAddressesKey as CNKeyDescriptor,
+            CNContactPhoneNumbersKey as CNKeyDescriptor,
+            CNContactJobTitleKey as CNKeyDescriptor,
+            CNContactDepartmentNameKey as CNKeyDescriptor,
+            CNContactOrganizationNameKey as CNKeyDescriptor,
+            CNContactImageDataKey as CNKeyDescriptor,
+            CNContactIdentifierKey as CNKeyDescriptor,
+        ]
+        return try store.unifiedContacts(matching: predicate, keysToFetch: keysToFetch).first
+    }
+
+    private func addContactToGroup(_ contact: CNContact, group: CNGroup) throws {
+        guard let mutable = contact.mutableCopy() as? CNMutableContact else { return }
+        let saveRequest = CNSaveRequest()
+        saveRequest.addMember(mutable, to: group)
+        try store.execute(saveRequest)
     }
 
     // MARK: - Group Management
@@ -303,6 +312,22 @@ actor ContactsSyncService {
     }
 
     // MARK: - Cleanup
+
+    /// Deletes the named group entirely. Contacts that were members are NOT deleted —
+    /// they lose group membership only. Used by Reset & Resync.
+    func deleteGroup(named groupName: String) throws -> Bool {
+        let groups = try store.groups(matching: nil)
+        guard let group = groups.first(where: { $0.name == groupName }),
+              let mutableGroup = group.mutableCopy() as? CNMutableGroup else {
+            Logger.contacts.info("Group '\(groupName)' not found, nothing to delete")
+            return false
+        }
+        let saveRequest = CNSaveRequest()
+        saveRequest.delete(mutableGroup)
+        try store.execute(saveRequest)
+        Logger.contacts.info("Deleted contact group: '\(groupName)'")
+        return true
+    }
 
     func removeAllContactsInGroup(named groupName: String) throws -> Int {
         let groups = try store.groups(matching: nil)

@@ -211,4 +211,48 @@ final class SyncOrchestrator {
     var hasAccountsNeedingReauth: Bool {
         accounts.contains { $0.needsReauth }
     }
+
+    // MARK: - Reset & Resync
+
+    /// Deletes the contact group(s) managed by this app (contacts lose membership but
+    /// are NOT deleted from iCloud), clears the directory hash cache so the next sync
+    /// is not skipped, then runs a full sync to rebuild the group from scratch.
+    func resetAndResync() async {
+        let log = LogStore.shared
+        let baseGroupName = UserDefaults.standard.string(forKey: "contactGroupName") ?? Constants.Defaults.contactGroupName
+        let separateGroups = UserDefaults.standard.bool(forKey: "separateGroupPerDomain")
+
+        log.info("Reset & Resync: deleting group(s) and re-syncing", category: "sync")
+
+        // Collect all group names in use
+        var groupNames: Set<String> = []
+        if separateGroups {
+            for account in accounts {
+                let name = "\(account.domain.split(separator: ".").first?.capitalized ?? account.domain) GAL"
+                groupNames.insert(name)
+            }
+        } else {
+            groupNames.insert(baseGroupName)
+        }
+
+        // Delete each group — contacts remain in iCloud, they just lose group membership
+        for groupName in groupNames {
+            do {
+                let deleted = try await ContactsSyncService.shared.deleteGroup(named: groupName)
+                if deleted {
+                    log.info("Reset: deleted group '\(groupName)'", category: "sync")
+                }
+            } catch {
+                log.log(error, context: "Deleting group '\(groupName)' for reset", category: "sync")
+            }
+        }
+
+        // Invalidate hash cache so the sync doesn't skip due to "no changes detected"
+        for account in accounts {
+            syncState.directoryHashes.removeValue(forKey: account.email)
+        }
+        syncState.save()
+
+        await syncAllAccounts()
+    }
 }
