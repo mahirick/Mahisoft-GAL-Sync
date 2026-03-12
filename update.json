@@ -1,5 +1,5 @@
 {
-  "version": "1.6.4",
-  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.4/MahisoftGALSync.dmg",
-  "releaseNotes": "App now automatically checks for updates every 24 hours in the background."
+  "version": "1.6.5",
+  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.5/MahisoftGALSync.dmg",
+  "releaseNotes": "Add setting to disable automatic update checks in Preferences → Schedule."
 }
