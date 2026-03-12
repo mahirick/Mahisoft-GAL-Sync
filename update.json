@@ -1,5 +1,5 @@
 {
-  "version": "1.6.1",
-  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.1/MahisoftGALSync.dmg",
-  "releaseNotes": "Fix update check UI not refreshing after checking for updates."
+  "version": "1.6.2",
+  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.2/MahisoftGALSync.dmg",
+  "releaseNotes": "Update checker now shows checking progress, up-to-date confirmation, release notes, and a direct update button."
 }

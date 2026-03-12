@@ -20,32 +20,27 @@ import os
 final class UpdateChecker {
     static let shared = UpdateChecker()
 
+    enum CheckState {
+        case idle
+        case checking
+        case upToDate
+        case updateAvailable(version: String, notes: String?)
+        case failed
+    }
+
+    private(set) var checkState: CheckState = .idle
     private(set) var availableVersion: String?
     private(set) var downloadURL: URL?
     private(set) var releaseNotes: String?
-    private(set) var lastCheckDate: Date?
 
     var hasUpdate: Bool { availableVersion != nil }
 
     /// The URL to the update manifest JSON. Set this to your hosted endpoint.
     static let updateManifestURL = URL(string: "https://raw.githubusercontent.com/mahirick/Mahisoft-GAL-Sync/main/update.json")
 
-    private static let checkIntervalSeconds: TimeInterval = 86400 // 24 hours
-    private static let lastCheckKey = "lastUpdateCheckDate"
-
     private init() {}
 
     // MARK: - Public
-
-    /// Check for updates if enough time has passed since the last check.
-    func checkIfNeeded() async {
-        let lastCheck = UserDefaults.standard.object(forKey: Self.lastCheckKey) as? Date ?? .distantPast
-        let elapsed = Date().timeIntervalSince(lastCheck)
-
-        if elapsed >= Self.checkIntervalSeconds {
-            await check()
-        }
-    }
 
     /// Force an update check regardless of timing.
     func check() async {
@@ -54,44 +49,47 @@ final class UpdateChecker {
             return
         }
 
+        checkState = .checking
+
         do {
             let (data, response) = try await URLSession.shared.data(from: manifestURL)
 
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else {
                 Logger.app.warning("Update check returned non-200 status")
+                checkState = .failed
                 return
             }
 
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let remoteVersion = json["version"] as? String else {
                 Logger.app.warning("Update manifest missing 'version' field")
+                checkState = .failed
                 return
             }
 
-            lastCheckDate = Date()
-            UserDefaults.standard.set(lastCheckDate, forKey: Self.lastCheckKey)
-
             let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+            let notes = json["releaseNotes"] as? String
 
             if isVersion(remoteVersion, newerThan: currentVersion) {
                 availableVersion = remoteVersion
-                releaseNotes = json["releaseNotes"] as? String
+                releaseNotes = notes
 
-                if let urlString = json["downloadURL"] as? String {
+                if let urlString = json["downloadURL"] as? String ?? (json["url"] as? String) {
                     downloadURL = URL(string: urlString)
                 }
 
+                checkState = .updateAvailable(version: remoteVersion, notes: notes)
                 Logger.app.info("Update available: \(remoteVersion) (current: \(currentVersion))")
             } else {
-                // Clear any previous update notification
                 availableVersion = nil
                 downloadURL = nil
                 releaseNotes = nil
+                checkState = .upToDate
                 Logger.app.info("App is up to date (\(currentVersion))")
             }
         } catch {
-            // Silently fail — update checks should never block the user
+            checkState = .failed
             Logger.app.warning("Update check failed: \(error.localizedDescription)")
         }
     }
@@ -103,6 +101,7 @@ final class UpdateChecker {
 
     func dismiss() {
         availableVersion = nil
+        checkState = .idle
     }
 
     // MARK: - Version Comparison

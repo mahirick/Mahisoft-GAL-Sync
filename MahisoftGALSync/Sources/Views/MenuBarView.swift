@@ -15,14 +15,9 @@ struct MenuBarView: View {
 
             Divider()
 
-            // Update notification
-            if let version = updateChecker.availableVersion {
-                Button("Update Available: v\(version)") {
-                    updateChecker.openDownloadPage()
-                }
-
-                Divider()
-            }
+            // Update status
+            updateStatusView
+            Divider()
 
             if orchestrator.accounts.isEmpty {
                 getStartedSection
@@ -54,6 +49,10 @@ struct MenuBarView: View {
             Button("Check for Updates...") {
                 Task { await updateChecker.check() }
             }
+            .disabled({
+                if case .checking = updateChecker.checkState { return true }
+                return false
+            }())
 
             if !contactsAuthorized {
                 Divider()
@@ -73,6 +72,43 @@ struct MenuBarView: View {
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+
+    // MARK: - Update Status
+
+    @ViewBuilder
+    private var updateStatusView: some View {
+        switch updateChecker.checkState {
+        case .idle:
+            EmptyView()
+        case .checking:
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                Text("Checking for updates...")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+            }
+        case .upToDate:
+            Text("You're up to date")
+                .foregroundStyle(.secondary)
+                .font(.caption)
+        case .updateAvailable(let version, let notes):
+            VStack(alignment: .leading, spacing: 2) {
+                Button("Update to v\(version)...") {
+                    updateChecker.openDownloadPage()
+                }
+                if let notes {
+                    Text(notes)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+        case .failed:
+            Text("Update check failed")
+                .foregroundStyle(.secondary)
+                .font(.caption)
+        }
     }
 
     // MARK: - Contacts Permission
