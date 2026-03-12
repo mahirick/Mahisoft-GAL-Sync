@@ -66,6 +66,7 @@ enum Constants {
         static let includeProfilePhotos = true
         static let launchAtLogin = true
         static let separateGroupPerDomain = true
+        static let autoCheckForUpdates = true
     }
 
     static let appSupportDirectory: URL = {

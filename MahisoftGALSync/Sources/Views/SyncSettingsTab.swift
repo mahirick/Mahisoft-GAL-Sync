@@ -10,6 +10,7 @@ struct SyncSettingsTab: View {
     @AppStorage("syncOnLaunch") private var syncOnLaunch = Constants.Defaults.syncOnLaunch
     @AppStorage("includeProfilePhotos") private var includeProfilePhotos = Constants.Defaults.includeProfilePhotos
     @AppStorage("launchAtLogin") private var launchAtLogin = Constants.Defaults.launchAtLogin
+    @AppStorage("autoCheckForUpdates") private var autoCheckForUpdates = Constants.Defaults.autoCheckForUpdates
 
     @Environment(SyncOrchestrator.self) private var orchestrator
     @Environment(LogStore.self) private var logStore
@@ -35,6 +36,15 @@ struct SyncSettingsTab: View {
                 Toggle("Launch at login", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, newValue in
                         updateLaunchAtLogin(enabled: newValue)
+                    }
+
+                Toggle("Automatically check for updates", isOn: $autoCheckForUpdates)
+                    .onChange(of: autoCheckForUpdates) { _, newValue in
+                        if newValue {
+                            UpdateChecker.shared.startBackgroundChecks()
+                        } else {
+                            UpdateChecker.shared.stopBackgroundChecks()
+                        }
                     }
             } header: {
                 Text("Schedule")
