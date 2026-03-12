@@ -1,5 +1,5 @@
 {
-  "version": "1.6.2",
-  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.2/MahisoftGALSync.dmg",
-  "releaseNotes": "Update checker now shows checking progress, up-to-date confirmation, release notes, and a direct update button."
+  "version": "1.6.3",
+  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.3/MahisoftGALSync.dmg",
+  "releaseNotes": "Check for Updates now shows a dialog confirming you're up to date, or presents the update with a Download button."
 }

@@ -47,7 +47,7 @@ struct MenuBarView: View {
             }
 
             Button("Check for Updates...") {
-                Task { await updateChecker.check() }
+                Task { await updateChecker.checkAndAlert() }
             }
             .disabled({
                 if case .checking = updateChecker.checkState { return true }

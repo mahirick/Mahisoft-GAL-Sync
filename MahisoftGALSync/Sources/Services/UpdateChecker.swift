@@ -32,6 +32,7 @@ final class UpdateChecker {
     private(set) var availableVersion: String?
     private(set) var downloadURL: URL?
     private(set) var releaseNotes: String?
+    private(set) var lastCheckError: String?
 
     var hasUpdate: Bool { availableVersion != nil }
 
@@ -50,20 +51,26 @@ final class UpdateChecker {
         }
 
         checkState = .checking
+        lastCheckError = nil
 
         do {
             let (data, response) = try await URLSession.shared.data(from: manifestURL)
 
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else {
-                Logger.app.warning("Update check returned non-200 status")
+                let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+                let msg = "Server returned HTTP \(code)"
+                Logger.app.warning("Update check: \(msg)")
+                lastCheckError = msg
                 checkState = .failed
                 return
             }
 
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let remoteVersion = json["version"] as? String else {
-                Logger.app.warning("Update manifest missing 'version' field")
+                let msg = "Invalid update manifest format"
+                Logger.app.warning("Update check: \(msg)")
+                lastCheckError = msg
                 checkState = .failed
                 return
             }
@@ -89,8 +96,47 @@ final class UpdateChecker {
                 Logger.app.info("App is up to date (\(currentVersion))")
             }
         } catch {
+            lastCheckError = error.localizedDescription
             checkState = .failed
             Logger.app.warning("Update check failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Runs a check and shows an NSAlert with the result. Use this for manual "Check for Updates..." actions.
+    func checkAndAlert() async {
+        await check()
+
+        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+
+        switch checkState {
+        case .upToDate:
+            alert.messageText = "You're up to date!"
+            alert.informativeText = "Version \(currentVersion) is the latest version."
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+
+        case .updateAvailable(let version, let notes):
+            alert.messageText = "Update Available — v\(version)"
+            alert.informativeText = notes ?? "A new version is available."
+            alert.addButton(withTitle: "Download Update")
+            alert.addButton(withTitle: "Later")
+            NSApp.activate(ignoringOtherApps: true)
+            if alert.runModal() == .alertFirstButtonReturn {
+                openDownloadPage()
+            }
+
+        case .failed:
+            alert.messageText = "Update Check Failed"
+            alert.informativeText = "Could not reach the update server.\n\n\(lastCheckError ?? "Unknown error")\n\nPlease check your internet connection and try again."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "OK")
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
+
+        default:
+            break
         }
     }
 
