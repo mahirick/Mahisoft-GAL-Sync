@@ -39,7 +39,26 @@ final class UpdateChecker {
     /// The URL to the update manifest JSON. Set this to your hosted endpoint.
     static let updateManifestURL = URL(string: "https://raw.githubusercontent.com/mahirick/Mahisoft-GAL-Sync/main/update.json")
 
+    private static let backgroundCheckInterval: TimeInterval = 86400 // 24 hours
+    private var backgroundTimer: Timer?
+
     private init() {}
+
+    // MARK: - Background Scheduling
+
+    func startBackgroundChecks() {
+        backgroundTimer?.invalidate()
+        backgroundTimer = Timer.scheduledTimer(withTimeInterval: Self.backgroundCheckInterval, repeats: true) { _ in
+            Task { @MainActor in
+                await UpdateChecker.shared.check()
+            }
+        }
+    }
+
+    func stopBackgroundChecks() {
+        backgroundTimer?.invalidate()
+        backgroundTimer = nil
+    }
 
     // MARK: - Public
 

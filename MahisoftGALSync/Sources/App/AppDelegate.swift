@@ -38,14 +38,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 await SyncOrchestrator.shared.syncAllAccounts()
             }
 
-            // Check for updates on every launch
+            // Check for updates on every launch, then repeat every 24 hours
             await UpdateChecker.shared.check()
+            UpdateChecker.shared.startBackgroundChecks()
         }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         Task { @MainActor in
             SyncOrchestrator.shared.stopScheduledSync()
+            UpdateChecker.shared.stopBackgroundChecks()
             LogStore.shared.info("Application terminating", category: "app")
         }
     }
