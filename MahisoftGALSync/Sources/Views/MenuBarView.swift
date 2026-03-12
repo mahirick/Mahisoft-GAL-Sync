@@ -4,8 +4,8 @@ import Contacts
 struct MenuBarView: View {
     @Environment(SyncOrchestrator.self) private var orchestrator
     @Environment(LogStore.self) private var logStore
+    @Environment(UpdateChecker.self) private var updateChecker
     @Environment(\.openWindow) private var openWindow
-    private var updateChecker = UpdateChecker.shared
 
     var body: some View {
         Group {

@@ -6,12 +6,14 @@ struct MahisoftGALSyncApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var orchestrator = SyncOrchestrator.shared
     @State private var logStore = LogStore.shared
+    @State private var updateChecker = UpdateChecker.shared
 
     var body: some Scene {
         MenuBarExtra {
             MenuBarView()
                 .environment(orchestrator)
                 .environment(logStore)
+                .environment(updateChecker)
         } label: {
             MenuBarIcon(iconName: menuBarIconName)
         }
@@ -20,6 +22,7 @@ struct MahisoftGALSyncApp: App {
             PreferencesView()
                 .environment(orchestrator)
                 .environment(logStore)
+                .environment(updateChecker)
         }
         .windowResizability(.contentSize)
         .defaultPosition(.center)

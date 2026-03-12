@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0",
-  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.0/MahisoftGALSync.dmg",
-  "releaseNotes": "Fix duplicate contacts bug (email-based lookup), add Reset & Resync, check for updates on every launch."
+  "version": "1.6.1",
+  "url": "https://github.com/mahirick/Mahisoft-GAL-Sync/releases/download/v1.6.1/MahisoftGALSync.dmg",
+  "releaseNotes": "Fix update check UI not refreshing after checking for updates."
 }
